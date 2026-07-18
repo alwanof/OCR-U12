@@ -18,6 +18,8 @@ _processor = None
 # Qwen2-VL patches are 28px; give tiny line crops some headroom.
 _MIN_SIDE = 56
 _TAG_RE = re.compile(r"<[^>]+>")
+# A short chunk repeated many times in a row = degeneration loop, not document text.
+_LOOP_RE = re.compile(r"(.{2,16}?)\1{5,}", re.S)
 
 
 def ocr_image(image: Image.Image) -> str:
@@ -38,7 +40,10 @@ def ocr_image(image: Image.Image) -> str:
     inputs = processor(text=[prompt], images=[image], return_tensors="pt")
     with torch.inference_mode():
         output = model.generate(
-            **inputs, max_new_tokens=config.QARI_MAX_NEW_TOKENS, do_sample=False
+            **inputs,
+            max_new_tokens=config.QARI_MAX_NEW_TOKENS,
+            do_sample=False,
+            repetition_penalty=config.QARI_REPETITION_PENALTY,
         )
     generated = output[0][inputs["input_ids"].shape[1]:]
     text = processor.decode(generated, skip_special_tokens=True)
@@ -80,4 +85,5 @@ def _ensure_min_size(image: Image.Image) -> Image.Image:
 
 def _clean(text: str) -> str:
     text = _TAG_RE.sub(" ", text)  # v0.3 may emit structural HTML markup
+    text = _LOOP_RE.sub(lambda m: m.group(1), text)  # collapse degeneration loops
     return re.sub(r"[ \t]+", " ", text).strip()

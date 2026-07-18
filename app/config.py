@@ -29,6 +29,8 @@ QARI_PROMPT = os.environ.get(
     "Extract and return only the text visible in this image, exactly as written, as plain text.",
 )
 QARI_MAX_NEW_TOKENS = int(os.environ.get("QARI_MAX_NEW_TOKENS", "512"))
+# Discourages degeneration loops on hard inputs (e.g. handwriting).
+QARI_REPETITION_PENALTY = float(os.environ.get("QARI_REPETITION_PENALTY", "1.15"))
 # Render scale for cropping blocks out of PDF pages (multiples of 72 dpi).
 QARI_RENDER_SCALE = float(os.environ.get("QARI_RENDER_SCALE", "2.8"))
 
