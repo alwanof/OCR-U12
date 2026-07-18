@@ -1,0 +1,26 @@
+[project]
+name = "arabic-ocr-app"
+version = "0.1.0"
+description = "Offline Arabic PDF/photo to Markdown converter (MinerU + Qari hybrid)"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "jinja2>=3.1",
+    "python-multipart>=0.0.9",
+    "redis>=5",
+    "rq>=2",
+    "markdown-it-py>=3",
+    "pillow>=10",
+    "python-bidi>=0.4",
+    "mineru[pipeline]>=2.6,<3",
+    "transformers>=4.46",
+    "accelerate>=1.0",
+    "requests>=2.32",
+    "openpyxl>=3.1",
+
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

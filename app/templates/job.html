@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{{ job["filename"] }} — محوّل المستندات{% endblock %}
+{% block content %}
+<p><a href="/" class="back">→ العودة إلى الرئيسية</a></p>
+{% include "partials/job_content.html" %}
+
+{% if job["status"] == "done" %}
+<section class="card" id="extractions">
+  <h2>استخراج بيانات</h2>
+  <p class="hint">اكتب كل حقل في سطر مستقل، بصيغة «اسم الحقل» أو «اسم الحقل : وصف اختياري».</p>
+  <form action="/jobs/{{ job['id'] }}/extract" method="post" class="upload-form">
+    {% if templates_list %}
+    <div class="field">
+      <label for="tpl">قالب محفوظ</label>
+      <select id="tpl" onchange="if(this.value) document.getElementById('fields').value = this.value;">
+        <option value="">— اختر قالباً —</option>
+        {% for t in templates_list %}
+        <option value="{% for f in (t['fields'] | fromjson) %}{{ f['name'] }}{% if f['desc'] %} : {{ f['desc'] }}{% endif %}
+{% endfor %}">{{ t["name"] }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+    <textarea id="fields" name="fields" rows="5" required
+      placeholder="رقم الفاتورة&#10;التاريخ : تاريخ إصدار المستند&#10;الإجمالي"></textarea>
+    <div class="field">
+      <label for="template_name">حفظ كقالب (اختياري)</label>
+      <input type="text" id="template_name" name="template_name" placeholder="اسم القالب">
+    </div>
+    <button type="submit" class="btn primary">استخرج البيانات</button>
+  </form>
+
+  {% for e in extractions %}
+  {% include "partials/extraction_row.html" %}
+  {% endfor %}
+</section>
+{% endif %}
+{% endblock %}

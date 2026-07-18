@@ -1,0 +1,45 @@
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATA_DIR=/data
+    volumes:
+      - ocr-data:/data
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  worker:
+    build: .
+    command: rq worker ocr --url redis://redis:6379/0
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATA_DIR=/data
+      - HF_HOME=/models/hf
+      - MINERU_MODEL_SOURCE=huggingface
+      - MINERU_LANG=arabic
+      - OLLAMA_URL=http://ollama:11434
+    volumes:
+      - ocr-data:/data
+      - ocr-models:/models
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama
+    volumes:
+      - ollama-models:/root/.ollama
+    restart: unless-stopped
+
+volumes:
+  ocr-data:
+  ocr-models:
+  ollama-models:

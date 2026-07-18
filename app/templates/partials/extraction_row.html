@@ -1,0 +1,30 @@
+<div class="card extraction" id="ext-{{ e['id'] }}"
+     {% if e["status"] in ("queued", "processing") %}
+     hx-get="/extractions/{{ e['id'] }}/row" hx-trigger="every 3s" hx-swap="outerHTML"
+     {% endif %}>
+  <p>
+    <span class="status status-{{ e['status'] }}">{{ status_labels[e["status"]] }}</span>
+    {% if e["status"] == "processing" %}<span class="spinner"></span>{% endif %}
+    <span class="dt">{{ e["created_at"][:16].replace("T", " ") }}</span>
+  </p>
+  {% if e["status"] == "failed" %}
+  <div class="error-box"><pre dir="ltr">{{ e["error"] }}</pre></div>
+  {% endif %}
+  {% if e["status"] == "done" and e["result"] %}
+  <table class="jobs kv">
+    <thead><tr><th>الحقل</th><th>القيمة</th></tr></thead>
+    <tbody>
+      {% for f in e["fields"] %}
+      <tr>
+        <td>{{ f["name"] }}</td>
+        <td>{% if e["result"][f["name"]] %}{{ e["result"][f["name"]] }}{% else %}<span class="hint">غير موجود</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="actions">
+    <a class="btn small" href="/extractions/{{ e['id'] }}/download.csv">تحميل CSV</a>
+    <a class="btn small" href="/extractions/{{ e['id'] }}/download.xlsx">تحميل Excel</a>
+  </div>
+  {% endif %}
+</div>

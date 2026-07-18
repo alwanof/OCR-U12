@@ -1,0 +1,33 @@
+<div id="job-content"
+     {% if job["status"] in ("queued", "processing") %}
+     hx-get="/jobs/{{ job['id'] }}/fragment" hx-trigger="every 3s" hx-swap="outerHTML"
+     {% endif %}>
+  <section class="card">
+    <h1 class="filename">{{ job["filename"] }}</h1>
+    <p>
+      <span class="status">{{ "هجين مع Qari" if job["engine"] == "hybrid" else "MinerU" }}</span>
+      <span class="status status-{{ job['status'] }}">{{ status_labels[job["status"]] }}</span>
+      {% if job["status"] == "processing" %}<span class="spinner"></span>
+      <span class="hint">المعالجة على المعالج فقط — قد تستغرق دقائق لكل صفحة.</span>{% endif %}
+    </p>
+    {% if job["status"] == "failed" %}
+    <div class="error-box">
+      <strong>سبب الفشل:</strong>
+      <pre dir="ltr">{{ job["error"] }}</pre>
+    </div>
+    {% endif %}
+    {% if job["status"] == "done" %}
+    <div class="actions">
+      <a class="btn primary" href="/download/{{ job['id'] }}/document.md">تحميل Markdown</a>
+      <a class="btn" href="/download/{{ job['id'] }}/bundle.zip">تحميل ZIP (مع الصور)</a>
+    </div>
+    {% endif %}
+  </section>
+
+  {% if content %}
+  <section class="card preview">
+    <h2>معاينة</h2>
+    <article class="markdown-body">{{ content | safe }}</article>
+  </section>
+  {% endif %}
+</div>

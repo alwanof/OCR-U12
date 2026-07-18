@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}محوّل المستندات العربية{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/htmx.min.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a href="/" class="brand">محوّل المستندات العربية</a>
+    <span class="tagline">PDF / صورة ← Markdown — يعمل دون اتصال بالإنترنت</span>
+  </header>
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

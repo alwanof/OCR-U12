@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <h1>تحويل مستند</h1>
+  <form action="/upload" method="post" enctype="multipart/form-data" class="upload-form">
+    <label class="file-label">
+      <input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg" required>
+      <span>اختر ملف PDF أو صورة (JPG / PNG)</span>
+    </label>
+    <div class="field">
+      <label for="engine">محرك التحويل</label>
+      <select name="engine" id="engine">
+        <option value="mineru-only" selected>MinerU (أساسي — أسرع)</option>
+        <option value="hybrid">هجين مع Qari (أدق للعربية — أبطأ بكثير)</option>
+      </select>
+    </div>
+    <button type="submit" class="btn primary">ابدأ التحويل</button>
+    <p class="hint">الحد الأقصى لحجم الملف: 50 م.ب — تتم المعالجة محلياً بالكامل.</p>
+  </form>
+</section>
+
+<section class="card">
+  <h2>المهام الأخيرة</h2>
+  {% if jobs %}
+  <table class="jobs">
+    <thead>
+      <tr><th>الملف</th><th>الحالة</th><th>التاريخ</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for j in jobs %}
+      <tr>
+        <td class="filename">{{ j["filename"] }}</td>
+        <td><span class="status status-{{ j['status'] }}">{{ status_labels[j["status"]] }}</span></td>
+        <td class="dt">{{ j["created_at"][:16].replace("T", " ") }}</td>
+        <td><a class="btn small" href="/jobs/{{ j['id'] }}">عرض</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="hint">لا توجد مهام بعد — ارفع أول مستند أعلاه.</p>
+  {% endif %}
+</section>
+{% endblock %}
