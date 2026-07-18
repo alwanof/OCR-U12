@@ -10,6 +10,7 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379/0
       - DATA_DIR=/data
+      - MAX_UPLOAD_MB=${MAX_UPLOAD_MB:-50}
     volumes:
       - ocr-data:/data
     depends_on:
@@ -24,8 +25,23 @@ services:
       - DATA_DIR=/data
       - HF_HOME=/models/hf
       - MINERU_MODEL_SOURCE=huggingface
-      - MINERU_LANG=arabic
       - OLLAMA_URL=http://ollama:11434
+      # Model & engine settings — override in .env (see .env.example)
+      - MINERU_BACKEND=${MINERU_BACKEND:-pipeline}
+      - MINERU_DEVICE=${MINERU_DEVICE:-cpu}
+      - MINERU_LANG=${MINERU_LANG:-arabic}
+      - MINERU_METHOD=${MINERU_METHOD:-ocr}
+      - MINERU_FORMULA=${MINERU_FORMULA:-false}
+      - MINERU_TABLE=${MINERU_TABLE:-true}
+      - QARI_MODEL_ID=${QARI_MODEL_ID:-NAMAA-Space/Qari-OCR-v0.3-VL-2B-Instruct}
+      - QARI_MAX_NEW_TOKENS=${QARI_MAX_NEW_TOKENS:-512}
+      - QARI_REPETITION_PENALTY=${QARI_REPETITION_PENALTY:-1.15}
+      - QARI_RENDER_SCALE=${QARI_RENDER_SCALE:-2.8}
+      - EXTRACT_MODEL=${EXTRACT_MODEL:-qwen3:4b}
+      - EXTRACT_NUM_CTX=${EXTRACT_NUM_CTX:-16384}
+      - EXTRACT_MAX_CHARS=${EXTRACT_MAX_CHARS:-12000}
+      - EXTRACT_TIMEOUT=${EXTRACT_TIMEOUT:-900}
+      - MAX_UPLOAD_MB=${MAX_UPLOAD_MB:-50}
     volumes:
       - ocr-data:/data
       - ocr-models:/models

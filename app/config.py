@@ -9,6 +9,8 @@ DB_PATH = DATA_DIR / "app.db"
 REDIS_URL = os.environ.get("REDIS_URL", "redis://redis:6379/0")
 
 # OCR settings
+MINERU_BACKEND = os.environ.get("MINERU_BACKEND", "pipeline")
+MINERU_DEVICE = os.environ.get("MINERU_DEVICE", "cpu")  # cpu | cuda | cuda:0 | mps
 MINERU_LANG = os.environ.get("MINERU_LANG", "arabic")
 # Force real OCR by default: Arabic PDFs' embedded text layers are frequently stored
 # in presentation forms / visual order and extract as garbled text.

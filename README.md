@@ -72,18 +72,24 @@ After these downloads, the stack runs **fully offline** — you can disable netw
 
 Volumes: `ocr-data` (uploads, results, SQLite DB), `ocr-models` (MinerU + Qari weights), `ollama-models` (Qwen3).
 
-## Configuration
+## Configuration & upgrading models
 
-Set via environment variables on the `worker` service in [docker-compose.yml](docker-compose.yml):
+All models and engine settings live in a `.env` file (see [.env.example](.env.example) for the full documented list):
 
-| Variable | Default | Purpose |
+```bash
+cp .env.example .env   # then edit and: docker compose up -d
+```
+
+The app runs with sensible defaults when no `.env` exists. Key variables:
+
+| Variable | Default | Upgrade path |
 |---|---|---|
-| `MINERU_LANG` | `arabic` | OCR language hint |
-| `MINERU_METHOD` | `ocr` | `ocr` forces real OCR (Arabic text layers are unreliable); `auto`/`txt` available |
-| `MINERU_FORMULA` | `false` | Formula parsing (off: hallucinates LaTeX from Arabic calligraphy) |
-| `MINERU_TABLE` | `true` | Table structure recognition |
-| `QARI_MODEL_ID` | `NAMAA-Space/Qari-OCR-v0.3-VL-2B-Instruct` | Hybrid recognition model |
-| `EXTRACT_MODEL` | `qwen3:4b` | Ollama model for field extraction |
+| `QARI_MODEL_ID` | `NAMAA-Space/Qari-OCR-v0.3-VL-2B-Instruct` | `...Qari-OCR-0.4.0-VL-4B-Instruct` (needs ~9 GB RAM / GPU) |
+| `EXTRACT_MODEL` | `qwen3:4b` | `qwen3:8b` / `qwen3:14b` (pull via `docker compose exec ollama ollama pull <model>` first) |
+| `MINERU_DEVICE` | `cpu` | `cuda` on an NVIDIA server |
+| `MINERU_BACKEND` | `pipeline` | `vlm-auto-engine` (GPU, higher accuracy) |
+| `MINERU_METHOD` | `ocr` | `ocr` forces real OCR — Arabic PDF text layers are unreliable |
+| `MINERU_FORMULA` | `false` | off: hallucinates LaTeX from Arabic calligraphy |
 | `MAX_UPLOAD_MB` | `50` | Upload size limit |
 
 ## Performance expectations
