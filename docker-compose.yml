@@ -26,6 +26,8 @@ services:
       - HF_HOME=/models/hf
       - MINERU_MODEL_SOURCE=huggingface
       - OLLAMA_URL=http://ollama:11434
+      - MALLOC_ARENA_MAX=2
+      - QARI_MAX_SIDE=${QARI_MAX_SIDE:-1540}
       # Model & engine settings — override in .env (see .env.example)
       - MINERU_BACKEND=${MINERU_BACKEND:-pipeline}
       - MINERU_DEVICE=${MINERU_DEVICE:-cpu}
@@ -37,6 +39,8 @@ services:
       - QARI_MAX_NEW_TOKENS=${QARI_MAX_NEW_TOKENS:-512}
       - QARI_REPETITION_PENALTY=${QARI_REPETITION_PENALTY:-1.15}
       - QARI_RENDER_SCALE=${QARI_RENDER_SCALE:-2.8}
+      - ENSEMBLE_VLM_MODEL=${ENSEMBLE_VLM_MODEL:-qwen3-vl:8b}
+      - ENSEMBLE_JUDGE_MODE=${ENSEMBLE_JUDGE_MODE:-text}
       - EXTRACT_MODEL=${EXTRACT_MODEL:-qwen3:4b}
       - EXTRACT_NUM_CTX=${EXTRACT_NUM_CTX:-16384}
       - EXTRACT_MAX_CHARS=${EXTRACT_MAX_CHARS:-12000}

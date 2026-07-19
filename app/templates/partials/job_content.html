@@ -5,7 +5,7 @@
   <section class="card">
     <h1 class="filename">{{ job["filename"] }}</h1>
     <p>
-      <span class="status">{{ "هجين مع Qari" if job["engine"] == "hybrid" else "MinerU" }}</span>
+      <span class="status">{{ {"hybrid": "هجين مع Qari", "ensemble": "مجمّع Qari + Qwen"}.get(job["engine"], "MinerU") }}</span>
       <span class="status status-{{ job['status'] }}">{{ status_labels[job["status"]] }}</span>
       {% if job["status"] == "processing" %}<span class="spinner"></span>
       <span class="hint">المعالجة على المعالج فقط — قد تستغرق دقائق لكل صفحة.</span>{% endif %}

@@ -22,7 +22,7 @@ OCR_JOB_TIMEOUT = int(os.environ.get("OCR_JOB_TIMEOUT", "3600"))
 
 MAX_UPLOAD_MB = int(os.environ.get("MAX_UPLOAD_MB", "50"))
 ALLOWED_EXTENSIONS = {".pdf", ".png", ".jpg", ".jpeg"}
-ALLOWED_ENGINES = {"mineru-only", "hybrid"}
+ALLOWED_ENGINES = {"mineru-only", "hybrid", "ensemble"}
 
 # Qari-OCR (hybrid engine)
 QARI_MODEL_ID = os.environ.get("QARI_MODEL_ID", "NAMAA-Space/Qari-OCR-v0.3-VL-2B-Instruct")
@@ -35,6 +35,11 @@ QARI_MAX_NEW_TOKENS = int(os.environ.get("QARI_MAX_NEW_TOKENS", "512"))
 QARI_REPETITION_PENALTY = float(os.environ.get("QARI_REPETITION_PENALTY", "1.15"))
 # Render scale for cropping blocks out of PDF pages (multiples of 72 dpi).
 QARI_RENDER_SCALE = float(os.environ.get("QARI_RENDER_SCALE", "2.8"))
+
+# Ensemble engine: Qari (X) + VLM (Y) -> judge -> final text per block
+ENSEMBLE_VLM_MODEL = os.environ.get("ENSEMBLE_VLM_MODEL", "qwen3-vl:8b")
+# text: judge sees only X and Y (chosen design). vision: judge also sees the block image.
+ENSEMBLE_JUDGE_MODE = os.environ.get("ENSEMBLE_JUDGE_MODE", "text")
 
 # Field extraction (Ollama)
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://ollama:11434")

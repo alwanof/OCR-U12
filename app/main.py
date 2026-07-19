@@ -99,7 +99,27 @@ def job_fragment(request: Request, job_id: str):
     job = db.get_job(job_id)
     if job is None:
         raise HTTPException(404)
+    job = _reap_if_dead(job)
     return _render(request, "partials/job_content.html", job=job, content=_job_content(job_id, job))
+
+
+def _reap_if_dead(job):
+    """A job marked 'processing' whose id no worker currently holds is dead
+    (e.g. the work-horse was OOM-killed — RQ's on_failure doesn't fire then)."""
+    from datetime import datetime, timedelta, timezone
+
+    if job["status"] != "processing":
+        return job
+    started = datetime.fromisoformat(job["started_at"]) if job["started_at"] else None
+    if started is None or datetime.now(timezone.utc) - started < timedelta(seconds=120):
+        return job  # grace period against pickup races
+    try:
+        if job["id"] in queue.active_task_ids() or job["id"] in queue.queued_task_ids():
+            return job
+    except Exception:  # noqa: BLE001 - never let the reaper break the page
+        return job
+    db.mark_failed(job["id"], "توقف العامل أثناء المعالجة (غالباً نفاد الذاكرة)")
+    return db.get_job(job["id"])
 
 
 def _job_content(job_id: str, job) -> str | None:

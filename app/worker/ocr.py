@@ -117,8 +117,8 @@ def _finalize_markdown(src_md: Path, engine: str, input_file: Path) -> str:
     line-level bidi fix on the markdown text. Hybrid has no fallback — it must
     fail loudly rather than silently return MinerU-quality output."""
     middle_files = sorted(src_md.parent.glob("*middle.json"))
-    if not middle_files and engine == "hybrid":
-        raise RuntimeError("hybrid engine requires middle.json from mineru")
+    if not middle_files and engine in ("hybrid", "ensemble"):
+        raise RuntimeError(f"{engine} engine requires middle.json from mineru")
     if middle_files:
         try:
             import json
@@ -135,11 +135,18 @@ def _finalize_markdown(src_md: Path, engine: str, input_file: Path) -> str:
                 if not stats["replaced"]:
                     raise RuntimeError(f"qari replaced no blocks: {stats}")
                 changed = True
+            elif engine == "ensemble":
+                from app.worker import ensemble
+
+                stats = ensemble.apply_ensemble(middle, input_file)
+                if not stats["replaced"]:
+                    raise RuntimeError(f"ensemble replaced no blocks: {stats}")
+                changed = True
             if changed:
                 made = union_make(middle["pdf_info"], MakeMode.MM_MD, "images")
                 return made if isinstance(made, str) else "\n\n".join(made)
             return src_md.read_text(encoding="utf-8")
         except Exception:  # noqa: BLE001 - md-level fallback is mineru-only
-            if engine == "hybrid":
+            if engine in ("hybrid", "ensemble"):
                 raise
     return rtl.fix_rtl_markdown(src_md.read_text(encoding="utf-8"))

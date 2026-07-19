@@ -17,6 +17,9 @@ _processor = None
 
 # Qwen2-VL patches are 28px; give tiny line crops some headroom.
 _MIN_SIDE = 56
+# Cap huge crops (full-page handwritten blocks): vision tokens grow with pixels
+# and the memory spike OOM-kills the worker inside the small Docker VM.
+_MAX_SIDE = int(__import__("os").environ.get("QARI_MAX_SIDE", "1540"))
 _TAG_RE = re.compile(r"<[^>]+>")
 # A short chunk repeated many times in a row = degeneration loop, not document text.
 _LOOP_RE = re.compile(r"(.{2,16}?)\1{5,}", re.S)
@@ -60,8 +63,13 @@ def unload() -> None:
 def _load():
     global _model, _processor
     if _model is None:
+        import os
+
         import torch
         from transformers import AutoProcessor, Qwen2VLForConditionalGeneration
+
+        # Fewer threads = smaller per-thread scratch buffers; matters in the small VM.
+        torch.set_num_threads(max(2, (os.cpu_count() or 4) - 2))
 
         _model = Qwen2VLForConditionalGeneration.from_pretrained(
             config.QARI_MODEL_ID,
@@ -76,6 +84,10 @@ def _load():
 def _ensure_min_size(image: Image.Image) -> Image.Image:
     if image.mode != "RGB":
         image = image.convert("RGB")
+    longest = max(image.width, image.height)
+    if longest > _MAX_SIDE:
+        factor = _MAX_SIDE / longest
+        image = image.resize((round(image.width * factor), round(image.height * factor)))
     shortest = min(image.width, image.height)
     if shortest >= _MIN_SIDE:
         return image
